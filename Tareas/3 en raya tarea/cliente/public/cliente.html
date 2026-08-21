@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 en Raya - WebSocket</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        #status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 24px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 80px);
+            grid-gap: 6px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 80px;
+            height: 80px;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            border: 2px solid #333;
+        }
+
+        .cell:disabled {
+            cursor: not-allowed;
+            color: #000;
+        }
+
+        #reset-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Juego 3 en Raya (vs Servidor)</h1>
+    <p id="status">Conectando al servidor...</p>
+
+    <!-- Tablero 3x3 -->
+    <div class="board">
+        <button class="cell" onclick="makeMove(0)" id="cell-0"></button>
+        <button class="cell" onclick="makeMove(1)" id="cell-1"></button>
+        <button class="cell" onclick="makeMove(2)" id="cell-2"></button>
+        <button class="cell" onclick="makeMove(3)" id="cell-3"></button>
+        <button class="cell" onclick="makeMove(4)" id="cell-4"></button>
+        <button class="cell" onclick="makeMove(5)" id="cell-5"></button>
+        <button class="cell" onclick="makeMove(6)" id="cell-6"></button>
+        <button class="cell" onclick="makeMove(7)" id="cell-7"></button>
+        <button class="cell" onclick="makeMove(8)" id="cell-8"></button>
+    </div>
+
+    <button id="reset-btn" onclick="resetGame()">Reiniciar Juego</button>
+
+    <script>
+        const socket = new WebSocket("ws://localhost:8080");
+
+        socket.onopen = () => {
+            console.log("Conectado al servidor WebSocket de 3 en Raya");
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // Actualizar mensaje de estado
+            document.getElementById("status").textContent = data.message;
+
+            // Backgroun 
+            if (data.winner === 'X') {
+                document.body.style.backgroundColor = 'green';
+            } else if (data.winner === 'O') {
+                document.body.style.backgroundColor = 'red';
+            } else {
+                document.body.style.backgroundColor = 'white';
+            }
+
+            // Refresh al Tablero
+            data.board.forEach((val, idx) => {
+                const btn = document.getElementById("cell-" + idx);
+                btn.textContent = val;
+                btn.disabled = val !== '' || data.gameOver;
+            });
+        };
+
+        // Enviar casilla elegida al servidor
+        function makeMove(index) {
+            socket.send(index.toString());
+        }
+
+        // Reiniciar el juego
+        function resetGame() {
+            socket.send("reset");
+        }
+    </script>
+</body>
+
+</html>

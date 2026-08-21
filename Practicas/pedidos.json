@@ -1,0 +1,114 @@
+[
+    {
+        "_id": 1,
+        "cliente": "Ana Vargas",
+        "ciudad": "Sucre",
+        "estado": "pendiente",
+        "items": [
+            {
+                "codigo": "ART-001",
+                "cantidad": 1,
+                "precio": 850
+            }
+        ],
+        "total": 850,
+        "fecha": {
+            "$date": "2025-06-01T14:00:00Z"
+        }
+    },
+    {
+        "_id": 2,
+        "cliente": "Luis Mamani",
+        "ciudad": "La Paz",
+        "estado": "enviado",
+        "items": [
+            {
+                "codigo": "ALM-003",
+                "cantidad": 4,
+                "precio": 45
+            },
+            {
+                "codigo": "ALM-011",
+                "cantidad": 2,
+                "precio": 60
+            }
+        ],
+        "total": 300,
+        "fecha": {
+            "$date": "2025-06-03T09:30:00Z"
+        }
+    },
+    {
+        "_id": 3,
+        "cliente": "Rosa Quispe",
+        "ciudad": "Potosí",
+        "estado": "entregado",
+        "items": [
+            {
+                "codigo": "JOY-008",
+                "cantidad": 2,
+                "precio": 190
+            }
+        ],
+        "total": 380,
+        "fecha": {
+            "$date": "2025-06-05T16:45:00Z"
+        }
+    },
+    {
+        "_id": 4,
+        "cliente": "Ana Vargas",
+        "ciudad": "Sucre",
+        "estado": "pendiente",
+        "items": [
+            {
+                "codigo": "ALM-005",
+                "cantidad": 10,
+                "precio": 28
+            }
+        ],
+        "total": 280,
+        "fecha": {
+            "$date": "2025-06-09T11:15:00Z"
+        }
+    },
+    {
+        "_id": 5,
+        "cliente": "Carlos Nina",
+        "ciudad": "Cochabamba",
+        "estado": "cancelado",
+        "items": [
+            {
+                "codigo": "TEX-006",
+                "cantidad": 1,
+                "precio": 480
+            }
+        ],
+        "total": 480,
+        "fecha": {
+            "$date": "2025-06-11T08:00:00Z"
+        }
+    },
+    {
+        "_id": 6,
+        "cliente": "Rosa Quispe",
+        "ciudad": "Potosí",
+        "estado": "enviado",
+        "items": [
+            {
+                "codigo": "ART-002",
+                "cantidad": 3,
+                "precio": 320
+            },
+            {
+                "codigo": "LIB-009",
+                "cantidad": 1,
+                "precio": 120
+            }
+        ],
+        "total": 1080,
+        "fecha": {
+            "$date": "2025-06-14T13:20:00Z"
+        }
+    }
+]
