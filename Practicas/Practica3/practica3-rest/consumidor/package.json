@@ -1,0 +1,12 @@
+{
+  "name": "servicio-consumidor",
+  "version": "1.0.0",
+  "description": "Microservicio consumidor que compone respuestas consultando a la API principal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

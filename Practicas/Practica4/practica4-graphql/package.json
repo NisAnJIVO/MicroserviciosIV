@@ -1,0 +1,20 @@
+{
+  "name": "practica4-graphql",
+  "version": "1.0.0",
+  "description": "Este repositorio contiene la implementación de una capa GraphQL y Backend for Frontend (BFF) que compone datos de una base de datos relacional MySQL y de un servicio REST de usuarios.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@apollo/server": "^5.5.1",
+    "dataloader": "^2.2.3",
+    "graphql": "^16.14.2",
+    "graphql-depth-limit": "^1.1.0",
+    "mysql2": "^3.24.4"
+  }
+}

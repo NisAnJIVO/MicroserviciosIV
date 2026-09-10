@@ -1,0 +1,7 @@
+node_modules/
+salida-antes.txt
+salida-despues.txt
+.env
+.DS_Store
+
+

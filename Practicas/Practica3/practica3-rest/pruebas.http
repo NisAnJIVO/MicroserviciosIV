@@ -1,0 +1,201 @@
+### ==============================================================================
+### COLECCIÓN DE PRUEBAS HTTP - PRÁCTICA 3: SERVICIOS REST (COM-600)
+### Compatible con REST Client (VS Code) y Postman
+### ==============================================================================
+
+@baseUrl = http://localhost:3000
+
+### ------------------------------------------------------------------------------
+### 1. VERIFICACIÓN DE INFRAESTRUCTURA Y SALUD
+### ------------------------------------------------------------------------------
+
+# 1.1 Healthcheck de la API (200 OK)
+GET {{baseUrl}}/salud
+Accept: application/json
+
+### ------------------------------------------------------------------------------
+### 2. ENDPOINTS DE USUARIOS (PARTE 1 - GUIADA)
+### ------------------------------------------------------------------------------
+
+# 2.1 Listar usuarios paginados (200 OK)
+GET {{baseUrl}}/v1/usuarios?pagina=1&limite=5
+Accept: application/json
+
+###
+
+# 2.2 Listar usuarios con filtro por edad mínima y ordenamiento (200 OK)
+GET {{baseUrl}}/v1/usuarios?edadMin=50&ordenPor=edad&orden=desc
+Accept: application/json
+
+###
+
+# 2.3 Probar defensa de tope de límite (solicita 999999, recorta a 100) (200 OK)
+GET {{baseUrl}}/v1/usuarios?limite=999999
+Accept: application/json
+
+###
+
+# 2.4 Crear un usuario válido (201 Created con cabecera Location)
+POST {{baseUrl}}/v1/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Ana Torres",
+  "correo": "ana@usfx.bo",
+  "edad": 22
+}
+
+###
+
+# 2.5 Error 409 Conflicto: Intentar registrar el mismo correo duplicado (409 Conflict)
+POST {{baseUrl}}/v1/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "Ana Torres Duplicada",
+  "correo": "ana@usfx.bo",
+  "edad": 25
+}
+
+###
+
+# 2.6 Error 400 Validación: Enviar campos inválidos (edad negativa y nombre corto)
+POST {{baseUrl}}/v1/usuarios
+Content-Type: application/json
+
+{
+  "nombre": "A",
+  "correo": "correo-invalido",
+  "edad": -5
+}
+
+###
+
+# 2.7 Error 404 No Encontrado: Obtener usuario inexistente
+GET {{baseUrl}}/v1/usuarios/000000000000000000000000
+Accept: application/json
+
+###
+
+# 2.8 Error 404 Ruta No Encontrada: Ruta inexistente fuera de versión
+GET {{baseUrl}}/usuarios
+Accept: application/json
+
+### ------------------------------------------------------------------------------
+### 3. ENDPOINTS DE PEDIDOS Y SUBRECURSO ITEMS (PARTE 2 - PROYECTO TIENDA)
+### ------------------------------------------------------------------------------
+
+# 3.1 Listar pedidos paginados con filtro por estado y ciudad (200 OK)
+GET {{baseUrl}}/v1/pedidos?pagina=1&limite=5&estado=pendiente&ciudad=sucre
+Accept: application/json
+
+###
+
+# 3.2 Listar pedidos ordenados por total descendente y totalMin (200 OK)
+GET {{baseUrl}}/v1/pedidos?totalMin=500&ordenPor=total&orden=desc&limite=5
+Accept: application/json
+
+###
+
+# 3.3 Crear un pedido válido con items (201 Created + Location)
+# @name crearPedido
+POST {{baseUrl}}/v1/pedidos
+Content-Type: application/json
+
+{
+  "numeroPedido": "PED-2026-999",
+  "cliente": "Carlos Fernandez",
+  "correoCliente": "carlos@usfx.bo",
+  "ciudad": "sucre",
+  "estado": "pendiente",
+  "fecha": "2026-09-03T10:00:00.000Z",
+  "items": [
+    {
+      "codigo": "ART-001",
+      "cantidad": 2,
+      "precio": 850
+    }
+  ],
+  "total": 1700
+}
+
+###
+
+# 3.4 Error 409 Conflicto: Intentar crear pedido con numeroPedido ya existente
+POST {{baseUrl}}/v1/pedidos
+Content-Type: application/json
+
+{
+  "numeroPedido": "PED-2026-999",
+  "cliente": "Carlos Fernandez Intento 2",
+  "correoCliente": "carlos2@usfx.bo",
+  "ciudad": "sucre",
+  "estado": "pendiente",
+  "fecha": "2026-09-03T10:00:00.000Z",
+  "items": [
+    {
+      "codigo": "ART-001",
+      "cantidad": 1,
+      "precio": 850
+    }
+  ],
+  "total": 850
+}
+
+###
+
+# 3.5 Error 400 Validación en Pedidos: Fechas futuras, ciudad inválida y total incoherente
+POST {{baseUrl}}/v1/pedidos
+Content-Type: application/json
+
+{
+  "cliente": "Jo",
+  "correoCliente": "correo_malo",
+  "ciudad": "madrid",
+  "estado": "desconocido",
+  "fecha": "2030-01-01T00:00:00.000Z",
+  "items": [],
+  "total": 100
+}
+
+###
+
+# 3.6 Error 404 No Encontrado: Obtener pedido inexistente
+GET {{baseUrl}}/v1/pedidos/650000000000000000000000
+Accept: application/json
+
+###
+
+# 3.7 Modificación Parcial con PATCH (200 OK)
+PATCH {{baseUrl}}/v1/pedidos/PED-2026-999
+Content-Type: application/json
+
+{
+  "ciudad": "cochabamba"
+}
+
+###
+
+# 3.8 Subrecurso: Listar items de un pedido (200 OK)
+GET {{baseUrl}}/v1/pedidos/PED-2026-999/items
+Accept: application/json
+
+###
+
+# 3.9 Subrecurso: Agregar un item a un pedido existente (201 Created)
+POST {{baseUrl}}/v1/pedidos/PED-2026-999/items
+Content-Type: application/json
+
+{
+  "codigo": "CER-012",
+  "cantidad": 3,
+  "precio": 120
+}
+
+### ------------------------------------------------------------------------------
+### 4. MICROSERVICIO CONSUMIDOR (EJERCICIO 6)
+### ------------------------------------------------------------------------------
+
+# 4.1 Consumir endpoint de respuesta compuesta del segundo microservicio
+GET http://localhost:3001/reporte-compuesto
+Accept: application/json

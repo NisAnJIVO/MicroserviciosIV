@@ -1,0 +1,444 @@
+openapi: 3.0.3
+info:
+  title: API REST Tienda y Usuarios - Práctica 3 COM-600
+  version: 1.0.0
+  description: Servicio REST con diseño de recursos, códigos de estado, validación uniforme, paginación y versionado.
+servers:
+  - url: http://localhost:3000/v1
+    description: Servidor local versión 1
+
+paths:
+  /usuarios:
+    get:
+      summary: Lista usuarios con paginación, filtros y ordenamiento
+      parameters:
+        - name: pagina
+          in: query
+          description: Número de página (comienza en 1)
+          schema:
+            type: integer
+            default: 1
+        - name: limite
+          in: query
+          description: Cantidad de resultados por página (máximo 100)
+          schema:
+            type: integer
+            default: 20
+        - name: edadMin
+          in: query
+          description: Filtrar usuarios con edad mayor o igual a edadMin
+          schema:
+            type: integer
+        - name: ordenPor
+          in: query
+          description: Campo para ordenar (nombre, edad)
+          schema:
+            type: string
+            default: nombre
+        - name: orden
+          in: query
+          description: Dirección del orden (asc, desc)
+          schema:
+            type: string
+            default: asc
+      responses:
+        "200":
+          description: Colección paginada de usuarios
+        "500":
+          description: Error interno del servidor
+
+    post:
+      summary: Crea un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevoUsuario'
+      responses:
+        "201":
+          description: Creado con éxito. Devuelve cabecera Location.
+          headers:
+            Location:
+              schema:
+                type: string
+              description: URI del recurso recién creado
+        "400":
+          description: Datos inválidos o JSON malformado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        "409":
+          description: Conflicto - el correo ya se encuentra registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+        "500":
+          description: Error interno
+
+  /usuarios/{id}:
+    get:
+      summary: Obtiene un usuario por su identificador
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Identificador único del usuario
+      responses:
+        "200":
+          description: Usuario encontrado
+        "404":
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorRespuesta'
+
+    put:
+      summary: Reemplaza un usuario por completo (idempotente)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevoUsuario'
+      responses:
+        "200":
+          description: Usuario reemplazado
+        "400":
+          description: Solicitud con campos inválidos
+        "404":
+          description: Usuario no encontrado
+        "409":
+          description: Conflicto de correo duplicado
+
+    delete:
+      summary: Elimina un usuario (idempotente)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Usuario eliminado correctamente sin cuerpo
+        "404":
+          description: Usuario no encontrado
+
+  /pedidos:
+    get:
+      summary: Lista pedidos con paginación, filtros combinables y ordenamiento
+      parameters:
+        - name: pagina
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limite
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum: [pendiente, enviado, entregado, cancelado]
+        - name: ciudad
+          in: query
+          schema:
+            type: string
+        - name: totalMin
+          in: query
+          schema:
+            type: number
+        - name: ordenPor
+          in: query
+          schema:
+            type: string
+            enum: [fecha, total, cliente]
+            default: fecha
+        - name: orden
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Colección paginada de pedidos
+        "500":
+          description: Error interno
+
+    post:
+      summary: Crea un pedido nuevo en el sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevoPedido'
+      responses:
+        "201":
+          description: Pedido creado, incluye cabecera Location
+        "400":
+          description: Error de validación en campos obligatorios o reglas de dominio
+        "409":
+          description: Conflicto - el número de pedido ya existe
+        "500":
+          description: Error interno
+
+  /pedidos/{id}:
+    get:
+      summary: Obtiene el detalle de un pedido por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Pedido encontrado
+        "404":
+          description: Pedido no encontrado
+
+    put:
+      summary: Reemplaza completamente un pedido (Idempotente)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NuevoPedido'
+      responses:
+        "200":
+          description: Pedido reemplazado con éxito
+        "400":
+          description: Datos inválidos
+        "404":
+          description: Pedido no encontrado
+        "409":
+          description: Conflicto - no se puede reemplazar un pedido entregado
+
+    patch:
+      summary: Modifica parcialmente un pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado:
+                  type: string
+                  enum: [pendiente, enviado, entregado, cancelado]
+                ciudad:
+                  type: string
+      responses:
+        "200":
+          description: Pedido actualizado parcialmente
+        "400":
+          description: Parámetros inválidos
+        "404":
+          description: Pedido no encontrado
+        "409":
+          description: Conflicto - no se puede reactivar un pedido cancelado
+
+    delete:
+      summary: Elimina un pedido (Idempotente)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Pedido eliminado sin cuerpo
+        "404":
+          description: Pedido no encontrado
+        "409":
+          description: Conflicto - no se puede eliminar un pedido entregado
+
+  /pedidos/{id}/items:
+    get:
+      summary: Lista los items asociados a un pedido específico (subrecurso)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lista de items del pedido
+        "404":
+          description: Pedido no encontrado
+
+    post:
+      summary: Agrega un nuevo item al subrecurso del pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ItemPedido'
+      responses:
+        "201":
+          description: Item añadido con éxito
+        "400":
+          description: Datos del item inválidos
+        "404":
+          description: Pedido no encontrado
+
+  /pedidos/{id}/items/{itemId}:
+    delete:
+      summary: Elimina un item del pedido y recalcula el total
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Item eliminado exitosamente
+        "404":
+          description: Pedido o item no encontrado
+
+components:
+  schemas:
+    NuevoUsuario:
+      type: object
+      required:
+        - nombre
+        - correo
+        - edad
+      properties:
+        nombre:
+          type: string
+          example: Ana Torres
+        correo:
+          type: string
+          example: ana@usfx.bo
+        edad:
+          type: integer
+          example: 22
+
+    ItemPedido:
+      type: object
+      required:
+        - codigo
+        - cantidad
+        - precio
+      properties:
+        codigo:
+          type: string
+          example: ART-001
+        cantidad:
+          type: integer
+          example: 2
+        precio:
+          type: number
+          example: 850
+
+    NuevoPedido:
+      type: object
+      required:
+        - cliente
+        - correoCliente
+        - ciudad
+        - estado
+        - fecha
+        - items
+        - total
+      properties:
+        numeroPedido:
+          type: string
+          example: PED-1001
+        cliente:
+          type: string
+          example: Carlos Fernandez
+        correoCliente:
+          type: string
+          example: carlos@usfx.bo
+        ciudad:
+          type: string
+          example: sucre
+        estado:
+          type: string
+          enum: [pendiente, enviado, entregado, cancelado]
+          example: pendiente
+        fecha:
+          type: string
+          format: date-time
+          example: "2026-09-03T10:00:00Z"
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemPedido'
+        total:
+          type: number
+          example: 1700
+
+    DetalleError:
+      type: object
+      properties:
+        campo:
+          type: string
+          example: correo
+        problema:
+          type: string
+          example: formato de correo inválido
+
+    ErrorRespuesta:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            codigo:
+              type: string
+              example: VALIDACION
+            mensaje:
+              type: string
+              example: La solicitud tiene campos inválidos
+            detalles:
+              type: array
+              items:
+                $ref: '#/components/schemas/DetalleError'
