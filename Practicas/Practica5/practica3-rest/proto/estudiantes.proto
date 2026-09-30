@@ -1,0 +1,27 @@
+syntax = "proto3";
+package estudiantes;
+
+message Estudiante {
+  string ci = 1;
+  string nombres = 2;
+  string apellidos = 3;
+  string carrera = 4;
+}
+
+message EstudianteRequest { 
+  string ci = 1; 
+}
+
+message EstudianteResponse { 
+  Estudiante estudiante = 1; 
+}
+
+message ListarRequest {
+  string carrera = 1; // vacio significa: todas las carreras
+}
+
+service EstudianteService {
+  rpc AgregarEstudiante (Estudiante) returns (EstudianteResponse);
+  rpc ObtenerEstudiante (EstudianteRequest) returns (EstudianteResponse);
+  rpc ListarEstudiantes (ListarRequest) returns (stream Estudiante);
+}

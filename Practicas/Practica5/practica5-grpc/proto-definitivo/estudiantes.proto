@@ -1,0 +1,30 @@
+syntax = "proto3";
+package estudiantes;
+
+message Estudiante {
+  reserved 4;
+  reserved "carrera";
+  string ci = 1;
+  string nombres = 2;
+  string apellidos = 3;
+  string correo = 5;
+  string carrera_actual = 6; // el reemplazo lleva número propio
+}
+
+message EstudianteRequest { 
+  string ci = 1; 
+}
+
+message EstudianteResponse { 
+  Estudiante estudiante = 1; 
+}
+
+message ListarRequest {
+  string carrera = 1; // vacío significa: todas las carreras
+}
+
+service EstudianteService {
+  rpc AgregarEstudiante (Estudiante) returns (EstudianteResponse);
+  rpc ObtenerEstudiante (EstudianteRequest) returns (EstudianteResponse);
+  rpc ListarEstudiantes (ListarRequest) returns (stream Estudiante);
+}

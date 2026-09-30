@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package pedidos;
+
+enum EstadoPedido {
+  PENDIENTE = 0;
+  PAGADO = 1;
+  ENVIADO = 2;
+  ENTREGADO = 3;
+  CANCELADO = 4;
+}
+
+message ItemPedido {
+  string producto_id = 1;
+  string nombre = 2;
+  int32 cantidad = 3;
+  double precio_unitario = 4;
+}
+
+message Pedido {
+  string id = 1;
+  string cliente_id = 2;
+  repeated ItemPedido items = 3;
+  double total = 4;
+  EstadoPedido estado = 5;
+  string fecha_creacion = 6;
+  string direccion_antigua = 7;
+}
+
+message CrearPedidoRequest {
+  string cliente_id = 1;
+  repeated ItemPedido items = 2;
+}
+
+message ObtenerPedidoRequest {
+  string id = 1;
+}
+
+message ActualizarEstadoRequest {
+  string id = 1;
+  EstadoPedido nuevo_estado = 2;
+}
+
+message CancelarPedidoRequest {
+  string id = 1;
+  string motivo = 2;
+}
+
+message ListarPedidosClienteRequest {
+  string cliente_id = 1;
+}
+
+message PedidoResponse {
+  Pedido pedido = 1;
+}
+
+message CancelarPedidoResponse {
+  bool exito = 1;
+  string mensaje = 2;
+  Pedido pedido = 3;
+}
+
+service PedidoService {
+  rpc CrearPedido (CrearPedidoRequest) returns (PedidoResponse);
+  rpc ObtenerPedido (ObtenerPedidoRequest) returns (PedidoResponse);
+  rpc ActualizarEstado (ActualizarEstadoRequest) returns (PedidoResponse);
+  rpc CancelarPedido (CancelarPedidoRequest) returns (CancelarPedidoResponse);
+  rpc ListarPedidosStream (ListarPedidosClienteRequest) returns (stream Pedido);
+}

@@ -1,0 +1,16 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: com600-rabbit
+    hostname: rabbit-uno
+    ports:
+      - "5672:5672"     # AMQP: por aqui hablan los microservicios
+      - "15672:15672"   # consola de administracion, en el navegador
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+    volumes:
+      - rabbit_datos:/var/lib/rabbitmq
+
+volumes:
+  rabbit_datos:

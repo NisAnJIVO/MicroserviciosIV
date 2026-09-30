@@ -1,0 +1,13 @@
+services:
+  estudiantes:
+    build: .
+    # sin seccion ports: no se expone fuera de la red de Docker
+
+  usuarios:
+    build: ../practica3-rest
+    ports:
+      - "3000:3000"
+    environment:
+      GRPC_ADDR: estudiantes:50051
+    depends_on:
+      - estudiantes

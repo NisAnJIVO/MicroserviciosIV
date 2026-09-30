@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package pedidos;
+
+enum EstadoPedido {
+  PENDIENTE = 0;
+  PAGADO = 1;
+  ENVIADO = 2;
+  ENTREGADO = 3;
+  CANCELADO = 4;
+}
+
+message ItemPedido {
+  string producto_id = 1;     // ID único del producto en catálogo
+  string nombre = 2;          // Nombre descriptivo del producto
+  int32 cantidad = 3;         // Unidades solicitadas (debe ser > 0)
+  double precio_unitario = 4; // Precio por unidad
+}
+
+message Pedido {
+  // Número 7 reservado tras refactorización de dirección
+  reserved 7;
+  reserved "direccion_antigua";
+
+  string id = 1;                         // ID único del pedido (UUID / Serial)
+  string cliente_id = 2;                 // ID del cliente que compra
+  repeated ItemPedido items = 3;         // Colección de artículos solicitados
+  double total = 4;                      // Monto total acumulado
+  EstadoPedido estado = 5;               // Estado actual de la orden (enum)
+  string fecha_creacion = 6;             // Timestamp ISO 8601
+  string direccion_envio = 8;            // Dirección de entrega (tag 8 tras evolución)
+  string metodo_pago = 9;                // Método de pago registrado
+}
+
+// Mensajes de petición dedicados para prever crecimiento
+message CrearPedidoRequest {
+  string cliente_id = 1;
+  repeated ItemPedido items = 2;
+  string direccion_envio = 3;
+  string metodo_pago = 4;
+}
+
+message ObtenerPedidoRequest {
+  string id = 1;
+}
+
+message ActualizarEstadoRequest {
+  string id = 1;
+  EstadoPedido nuevo_estado = 2;
+}
+
+message CancelarPedidoRequest {
+  string id = 1;
+  string motivo = 2;
+}
+
+message ListarPedidosClienteRequest {
+  string cliente_id = 1; // Si está vacío lista todos los pedidos
+}
+
+message PedidoResponse {
+  Pedido pedido = 1;
+}
+
+message CancelarPedidoResponse {
+  bool exito = 1;
+  string mensaje = 2;
+  Pedido pedido = 3;
+}
+
+service PedidoService {
+  rpc CrearPedido (CrearPedidoRequest) returns (PedidoResponse);
+  rpc ObtenerPedido (ObtenerPedidoRequest) returns (PedidoResponse);
+  rpc ActualizarEstado (ActualizarEstadoRequest) returns (PedidoResponse);
+  rpc CancelarPedido (CancelarPedidoRequest) returns (CancelarPedidoResponse);
+  rpc ListarPedidosStream (ListarPedidosClienteRequest) returns (stream Pedido);
+}

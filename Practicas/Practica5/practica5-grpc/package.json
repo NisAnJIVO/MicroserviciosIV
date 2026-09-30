@@ -1,0 +1,23 @@
+{
+  "name": "practica5-grpc",
+  "version": "1.0.0",
+  "description": "Practica 5 - Comunicacion de alto rendimiento con gRPC",
+  "main": "src/servidor.js",
+  "scripts": {
+    "start": "node src/servidor.js",
+    "inspect": "node src/inspeccionar.js",
+    "bytes": "node src/bytes.js",
+    "client": "node src/cliente.js",
+    "search": "node src/buscar.js",
+    "list": "node src/listar.js",
+    "seed": "node src/sembrar.js",
+    "measure": "node src/medir.js"
+  },
+  "keywords": ["grpc", "protobuf", "microservicios"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.10.10",
+    "@grpc/proto-loader": "^0.7.13"
+  }
+}
